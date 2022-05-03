@@ -1,4 +1,4 @@
-module com.main.paint {
+module paint.paint {
     requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
@@ -9,7 +9,10 @@ module com.main.paint {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
+    requires java.logging;
 
-    opens main to javafx.fxml;
-    exports main;
+    opens paint.paint to javafx.fxml;
+    exports paint.paint;
+    opens paint.paint.controller to javafx.fxml;
+    exports paint.paint.controller;
 }
