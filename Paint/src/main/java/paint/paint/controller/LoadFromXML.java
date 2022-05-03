@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class LoadFromXML {
-    private String path;
-    private ArrayList myList = new ArrayList<Shape>();
+    private final String path;
+    private final ArrayList myList = new ArrayList<Shape>();
     private HashMap m;
     private boolean success = false;
 
@@ -56,6 +56,7 @@ public class LoadFromXML {
                 x = x.getNextSibling();
             } while (!x.getNextSibling().equals(null));
         } catch (Exception e) {
+            e.printStackTrace();
         }
         success = true;
 

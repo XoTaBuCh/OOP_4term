@@ -33,8 +33,8 @@ public class Ellipse extends Shape {
     }
 
 
-    public Ellipse(Point2D startPos, Point2D endPos, Color strockColor) {
-        super(startPos, endPos, strockColor);
+    public Ellipse(Point2D startPos, Point2D endPos, Color strockColor, Color fillColor, int width) {
+        super(startPos, endPos, strockColor, fillColor, width);
         hRadius = Math.abs(startPos.getX() - endPos.getX()) / 2;
         vRadius = Math.abs(startPos.getY() - endPos.getY()) / 2;
 
@@ -61,11 +61,7 @@ public class Ellipse extends Shape {
         gc.strokeOval(super.getTopLeft().getX(), super.getTopLeft().getY(), hRadius * 2, vRadius * 2);
         gc.setFill(super.getFillColor());
         gc.fillOval(super.getTopLeft().getX(), super.getTopLeft().getY(), hRadius * 2, vRadius * 2);
-    }
-
-    @Override
-    public void predraw(Canvas canvas) {
-
+        gc.setLineWidth(super.getWidth());
     }
 
 

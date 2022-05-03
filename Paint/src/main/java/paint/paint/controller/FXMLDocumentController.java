@@ -1,4 +1,3 @@
-
 package paint.paint.controller;
 
 
@@ -15,7 +14,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import org.xml.sax.SAXException;
 import paint.paint.model.*;
 
@@ -46,7 +44,10 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
     private Button RedoBtn;
 
     @FXML
-    private ColorPicker ColorBox;
+    private ColorPicker ColorBox1;
+
+    @FXML
+    private ColorPicker ColorBox2;
 
     @FXML
     private Label Coords;
@@ -99,6 +100,9 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
     @FXML
     private ListView ShapeList;
 
+    @FXML
+    private Slider WidthSlider;
+
 
     /***CLASS VARIABLES***/
     private Point2D start;
@@ -115,9 +119,10 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
     private boolean importt = false;
 
     //MEMENTO DP
-    private Stack primary = new Stack<ArrayList<Shape>>();
-    private Stack secondary = new Stack<ArrayList<Shape>>();
+    private final Stack primary = new Stack<ArrayList<Shape>>();
+    private final Stack secondary = new Stack<ArrayList<Shape>>();
 
+    private Shape predrawShape;
 
     @FXML
     private void handleButtonAction(ActionEvent event) {
@@ -132,50 +137,50 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
                 int index = ShapeList.getSelectionModel().getSelectedIndex();
                 removeShape(shapeList.get(index));
             } else {
-                Message.setText("You need to pick a shape first to delete it.");
+                Message.setText("Вы должны выбрать фигуру перед удалением.");
             }
         }
 
         if (event.getSource() == RecolorBtn) {
             if (!ShapeList.getSelectionModel().isEmpty()) {
                 int index = ShapeList.getSelectionModel().getSelectedIndex();
-                shapeList.get(index).setFillColor(ColorBox.getValue());
+                shapeList.get(index).setFillColor(ColorBox2.getValue());
                 refresh(CanvasBox);
             } else {
-                Message.setText("You need to pick a shape first to recolor it.");
+                Message.setText("Вы должны выбрать фигуру перед заливкой.");
             }
         }
 
         if (event.getSource() == MoveBtn) {
             if (!ShapeList.getSelectionModel().isEmpty()) {
                 move = true;
-                Message.setText("Click on the new top-left position below to move the selected shape.");
+                Message.setText("Нажмите в точку для задания верхней-левой точки выбранной фигуры.");
             } else {
-                Message.setText("You need to pick a shape first to move it.");
+                Message.setText("Вы должны выбрать фигуру перед перемещением.");
             }
         }
 
         if (event.getSource() == CopyBtn) {
             if (!ShapeList.getSelectionModel().isEmpty()) {
                 copy = true;
-                Message.setText("Click on the new top-left position below to copy the selected shape.");
+                Message.setText("Нажмите в точку для задания верхней-левой точки новой фигуры.");
             } else {
-                Message.setText("You need to pick a shape first to copy it.");
+                Message.setText("Вы должны выбрать фигуру перед копированием.");
             }
         }
 
         if (event.getSource() == ResizeBtn) {
             if (!ShapeList.getSelectionModel().isEmpty()) {
                 resize = true;
-                Message.setText("Click on the new right-button position below to resize the selected shape.");
+                Message.setText("Нажмите в точку для задания новой правой-нижней точки выбранной фигуры.");
             } else {
-                Message.setText("You need to pick a shape first to copy it.");
+                Message.setText("Вы должны выбрать фигуру перед изменением размера.");
             }
         }
 
         if (event.getSource() == UndoBtn) {
             if (primary.empty()) {
-                Message.setText("We are back to zero point! .. Can Undo nothing more!");
+                Message.setText("Вернулись в ноль! .. Нельзя сделать Undo больше!");
                 return;
             }
             undo();
@@ -183,7 +188,7 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
 
         if (event.getSource() == RedoBtn) {
             if (secondary.empty()) {
-                Message.setText("There is no more history for me to get .. Go search history books.");
+                Message.setText("История рисования закончилась .. нарисуйте еще.");
                 return;
             }
             redo();
@@ -206,7 +211,7 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
 
         if (event.getSource() == PathBtn) {
             if (PathText.getText().isEmpty()) {
-                PathText.setText("You need to set the path of the file.");
+                PathText.setText("Вы должны указать путь к файлу!.");
                 return;
             }
             if (save) {
@@ -274,7 +279,7 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
         int index = ShapeList.getSelectionModel().getSelectedIndex();
         Shape temp = shapeList.get(index).cloneShape();
         if (temp.equals(null)) {
-            System.out.println("Error cloning failed!");
+            System.out.println("Ошибка клонирования!");
         } else {
             shapeList.add(temp);
             shapeList.get(shapeList.size() - 1).setTopLeft(start);
@@ -287,9 +292,10 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
         Color c = shapeList.get(index).getFillColor();
         start = shapeList.get(index).getTopLeft();
         //Factory DP
-        Shape temp = new ShapeFactory().createShape(shapeList.get(index).getClass().getSimpleName(), start, end, ColorBox.getValue());
+        Shape temp = new ShapeFactory().createShape(shapeList.get(index).getClass().getSimpleName(), start, end,
+                ColorBox1.getValue(), ColorBox2.getValue(), (int) WidthSlider.getValue());
         if (temp.getClass().getSimpleName().equals("Line")) {
-            Message.setText("Line doesn't support this command. Sorry :(");
+            Message.setText("Line не поддерживает изменение размера :(");
             return;
         }
         shapeList.remove(index);
@@ -304,14 +310,16 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
         if (end.equals(start)) {
             clickFunction();
         } else {
+            redraw(CanvasBox);
             String type = ShapeBox.getValue();
-            Shape sh;
             try {
-                sh = new ShapeFactory().createShape(type, start, end, ColorBox.getValue());
+                predrawShape = new ShapeFactory().createShape(type, start, end,
+                        ColorBox1.getValue(), ColorBox2.getValue(), (int) WidthSlider.getValue());
             } catch (Exception e) {
                 Message.setText("Сначала выберите фигуру для рисования :)");
                 return;
             }
+            predrawShape.draw(CanvasBox);
         }
     }
 
@@ -320,7 +328,8 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
         Shape sh;
         //Factory DP
         try {
-            sh = new ShapeFactory().createShape(type, start, end, ColorBox.getValue());
+            sh = new ShapeFactory().createShape(type, start, end,
+                    ColorBox1.getValue(), ColorBox2.getValue(), (int) WidthSlider.getValue());
         } catch (Exception e) {
             Message.setText("Сначала выберите фигуру для рисования :)");
             return;
@@ -336,10 +345,12 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
         ObservableList l = FXCollections.observableArrayList(new ArrayList());
         try {
             for (int i = 0; i < shapeList.size(); i++) {
-                String temp = shapeList.get(i).getClass().getSimpleName() + "  (" + (int) shapeList.get(i).getTopLeft().getX() + "," + (int) shapeList.get(i).getTopLeft().getY() + ")";
+                String temp = shapeList.get(i).getClass().getSimpleName() + "  (" + (int)
+                        shapeList.get(i).getTopLeft().getX() + "," + (int) shapeList.get(i).getTopLeft().getY() + ")";
                 l.add(temp);
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return l;
     }
@@ -365,7 +376,8 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
         shapeList.add("Line");
         ShapeBox.setItems(shapeList);
 
-        ColorBox.setValue(Color.YELLOW);
+        ColorBox1.setValue(Color.YELLOW);
+        ColorBox2.setValue(Color.BLUE);
     }
 
     @Override
@@ -387,6 +399,7 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
                 shapeList.get(i).draw(canvas);
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -448,14 +461,14 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
 
     @Override
     public void save(String path) {
-        if (path.substring(path.length() - 4).equals(".xml")) {
+        if (path.endsWith(".xml")) {
             SaveToXML x = new SaveToXML(path, shapeList);
             if (x.checkSuccess()) {
                 Message.setText("Файл успешно сохранен!");
             } else {
                 Message.setText("Ошибка во время сохраниения, проверьте путь и попробуйте снова!");
             }
-        } else if (path.substring(path.length() - 5).equals(".json")) {
+        } else if (path.endsWith(".json")) {
             Message.setText("Json еще не поддерживается :(");
         } else {
             Message.setText("Неправильный формат файла .. сохраните в .xml или .json");
@@ -465,7 +478,7 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
 
     @Override
     public void load(String path) {
-        if (path.substring(path.length() - 4).equals(".xml")) {
+        if (path.endsWith(".xml")) {
             try {
                 LoadFromXML l = new LoadFromXML(path);
                 if (l.checkSuccess()) {
@@ -483,7 +496,7 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
                 Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-        } else if (path.substring(path.length() - 5).equals(".json")) {
+        } else if (path.endsWith(".json")) {
             Message.setText("Json еще не поддерживается :(");
         } else {
             Message.setText("Неправильный формат файла .. загрузите из .xml или .json");

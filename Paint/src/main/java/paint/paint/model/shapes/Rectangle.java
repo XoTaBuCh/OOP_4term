@@ -9,46 +9,46 @@ import paint.paint.model.Shape;
 
 
 public class Rectangle extends Shape {
-    private double width;
+    private double rwidth;
     private double height;
 
     public Rectangle() {
 
     }
 
-    public void setWidth(double width) {
-        this.width = width;
+    public void setRwidth(double rwidth) {
+        this.rwidth = rwidth;
     }
 
     public void setHeight(double height) {
         this.height = height;
     }
 
-    public double getWidth() {
-        return width;
+    public double getRwidth() {
+        return rwidth;
     }
 
     public double getHeight() {
         return height;
     }
 
-    public Rectangle(Point2D startPos, Point2D endPos, Color strockColor) {
-        super(startPos, endPos, strockColor);
-        width = Math.abs(startPos.getX() - endPos.getX());
+    public Rectangle(Point2D startPos, Point2D endPos, Color strockColor, Color fillColor, int width) {
+        super(startPos, endPos, strockColor, fillColor, width);
+        rwidth = Math.abs(startPos.getX() - endPos.getX());
         height = Math.abs(startPos.getY() - endPos.getY());
     }
 
     @Override
     protected void getPropertiesToMap() {
         super.getPropertiesToMap();
-        super.addToProperties("width", width);
+        super.addToProperties("width", rwidth);
         super.addToProperties("height", height);
     }
 
     @Override
     protected void setPropertiesToVariables() {
         super.setPropertiesToVariables();
-        width = super.getFromMap("width");
+        rwidth = super.getFromMap("width");
         height = super.getFromMap("height");
     }
 
@@ -57,14 +57,10 @@ public class Rectangle extends Shape {
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setStroke(super.getColor());
-        gc.strokeRect(super.getTopLeft().getX(), super.getTopLeft().getY(), width, height);
+        gc.strokeRect(super.getTopLeft().getX(), super.getTopLeft().getY(), rwidth, height);
         gc.setFill(super.getFillColor());
-        gc.fillRect(super.getTopLeft().getX(), super.getTopLeft().getY(), width, height);
-    }
-
-    @Override
-    public void predraw(Canvas canvas) {
-
+        gc.fillRect(super.getTopLeft().getX(), super.getTopLeft().getY(), rwidth, height);
+        gc.setLineWidth(super.getWidth());
     }
 
 }

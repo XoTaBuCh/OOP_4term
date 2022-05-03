@@ -12,8 +12,8 @@ public class Line extends Shape {
 
     private double length;
 
-    public Line(Point2D start, Point2D end, Color color) {
-        super(start, end, color);
+    public Line(Point2D start, Point2D end, Color color, Color fillColor, int width) {
+        super(start, end, color, fillColor, width);
         length = start.distance(end);
     }
 
@@ -42,13 +42,9 @@ public class Line extends Shape {
         double y2 = super.getEndPosition().getY();
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setStroke(super.getColor());
+        gc.setLineWidth(super.getWidth());
         gc.strokeLine(x1, y1, x2, y2);
 
-
-    }
-
-    @Override
-    public void predraw(Canvas canvas) {
 
     }
 

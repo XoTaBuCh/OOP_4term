@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class SaveToXML {
-    private String path;
+    private final String path;
     private Map<String, Double> m;
-    private ArrayList<Shape> l;
+    private final ArrayList<Shape> l;
     private boolean success = false;
 
     public SaveToXML(String path, ArrayList<Shape> l) {
@@ -30,7 +30,7 @@ public class SaveToXML {
         try {
             doTheJob();
         } catch (Exception e) {
-            System.out.println("Failed to save xml");
+            System.out.println("Ошибка сохранения в XML.");
         }
     }
 
@@ -64,7 +64,7 @@ public class SaveToXML {
                     new StreamResult(new FileOutputStream(path)));
 
         } catch (Exception e) {
-            System.out.println("Failed to save the xml document");
+            System.out.println("Ошибка сохранения в XML.");
             success = false;
             return;
         }

@@ -3,6 +3,7 @@ package paint.paint.controller;
 import paint.paint.model.Shape;
 
 
+@SuppressWarnings("ClassEscapesDefinedScope")
 public interface DrawingEngine {
 
     /* redraw all shapes on the canvas */

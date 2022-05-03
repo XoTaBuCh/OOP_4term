@@ -19,11 +19,13 @@ public interface iShape {
 
     public javafx.scene.paint.Color getFillColor();
 
+    public void setWidth(int width);
+
+    public int getWidth();
+
     /* redraw the shape on the canvas,
     for swing, you will cast canvas to java.awt.Graphics */
     public void draw(javafx.scene.canvas.Canvas canvas);
-
-    public void predraw(javafx.scene.canvas.Canvas canvas);
 
     /* create a deep clone of the shape */
     public Object clone() throws CloneNotSupportedException;

@@ -11,8 +11,8 @@ import paint.paint.model.Shape;
 public class Triangle extends Shape {
     private Point2D thirdPoint;
 
-    public Triangle(Point2D startPos, Point2D endPos, Color strockColor) {
-        super(startPos, endPos, strockColor);
+    public Triangle(Point2D startPos, Point2D endPos, Color strockColor, Color fillColor, int width) {
+        super(startPos, endPos, strockColor, fillColor, width);
         double temp = Math.abs(startPos.getX() - endPos.getX());
         if (super.getPosition().getX() < super.getEndPosition().getX()) {
             thirdPoint = new Point2D(endPos.getX() - (temp * 2), endPos.getY());
@@ -60,11 +60,7 @@ public class Triangle extends Shape {
         gc.strokePolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
         gc.setFill(super.getFillColor());
         gc.fillPolygon(new double[]{x1, x2, x3}, new double[]{y1, y2, y3}, 3);
-    }
-
-    @Override
-    public void predraw(Canvas canvas) {
-
+        gc.setLineWidth(super.getWidth());
     }
 
 

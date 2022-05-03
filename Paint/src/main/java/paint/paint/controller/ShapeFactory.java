@@ -16,26 +16,26 @@ public class ShapeFactory {
 
     }
 
-    public Shape createShape(String type, Point2D start, Point2D end, Color color) {
+    public Shape createShape(String type, Point2D start, Point2D end, Color color, Color fillColor, int width) {
         Shape temp = null;
         switch (type) {
             case "Circle":
-                temp = new Circle(start, end, color);
+                temp = new Circle(start, end, color, fillColor, width);
                 break;
             case "Ellipse":
-                temp = new Ellipse(start, end, color);
+                temp = new Ellipse(start, end, color, fillColor, width);
                 break;
             case "Rectangle":
-                temp = new Rectangle(start, end, color);
+                temp = new Rectangle(start, end, color, fillColor, width);
                 break;
             case "Square":
-                temp = new Square(start, end, color);
+                temp = new Square(start, end, color, fillColor, width);
                 break;
             case "Line":
-                temp = new Line(start, end, color);
+                temp = new Line(start, end, color, fillColor, width);
                 break;
             case "Triangle":
-                temp = new Triangle(start, end, color);
+                temp = new Triangle(start, end, color, fillColor, width);
                 break;
         }
         return temp;

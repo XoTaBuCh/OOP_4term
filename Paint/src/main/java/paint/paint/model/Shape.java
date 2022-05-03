@@ -16,26 +16,21 @@ public abstract class Shape implements iShape, Cloneable {
     private Point2D topLeft;
     private Color color;
     private Color fillColor;
+    private int width;
     private Map properties = new HashMap<String, Double>();
 
     public Shape() {
         //Variables will be set by the Properties map.
     }
 
-    public Shape(Point2D startPos, Point2D endPos, Color strockColor) {
-        this.color = strockColor;
-        this.startPosition = startPos;
-        this.endPosition = endPos;
-        this.fillColor = Color.TRANSPARENT;
-        this.topLeft = calculateTopLeft();
-    }
-    
-    /*public Shape(Point2D startPos, Point2D endPos, Color strockColor, Color fillColor){
+    public Shape(Point2D startPos, Point2D endPos, Color strockColor, Color fillColor, int width) {
         this.color = strockColor;
         this.startPosition = startPos;
         this.endPosition = endPos;
         this.fillColor = fillColor;
-    }*/
+        this.width = width;
+        this.topLeft = calculateTopLeft();
+    }
 
     @Override
     public void setPosition(Point2D position) {
@@ -89,13 +84,14 @@ public abstract class Shape implements iShape, Cloneable {
 
         fillColor = Color.color(fillR, fillG, fillB);
 
+        width = (int)(double)properties.get("lwidth");
     }
 
     protected double getFromMap(String s) {
         try {
             return (double) properties.get(s);
         } catch (Exception e) {
-            System.out.println("Error, can't find this property.");
+            System.out.println("Ошибка, невозможно найти этот параметр.");
         }
         return Double.POSITIVE_INFINITY;
     }
@@ -123,6 +119,8 @@ public abstract class Shape implements iShape, Cloneable {
         properties.put("fillR", fillColor.getRed());
         properties.put("fillG", fillColor.getGreen());
         properties.put("fillB", fillColor.getBlue());
+
+        properties.put("lwidth", (double) width);
     }
 
     public void addToProperties(String s, Double x) {
@@ -150,10 +148,18 @@ public abstract class Shape implements iShape, Cloneable {
     }
 
     @Override
-    public void draw(Canvas canvas) {
-
+    public void setWidth(int width) {
+        this.width = width;
     }
 
+    @Override
+    public int getWidth() {
+        return this.width;
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+    }
 
     @Override
     public Shape clone() throws CloneNotSupportedException {
