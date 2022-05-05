@@ -54,7 +54,7 @@ public class LoadFromXML {
                 }
                 copyMapToList(x.getNodeName());
                 x = x.getNextSibling();
-            } while (!x.getNextSibling().equals(null));
+            } while (x.getNextSibling() != null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -63,7 +63,7 @@ public class LoadFromXML {
     }
 
     private void copyMapToList(String type) {
-        Shape temp = new ShapeFactory().createShape(type, m);
+        Shape temp = new ShapeFactory().create(type, m);
         myList.add(temp);
 
     }

@@ -15,4 +15,5 @@ module paint.paint {
     exports paint.paint;
     opens paint.paint.controller to javafx.fxml;
     exports paint.paint.controller;
+
 }

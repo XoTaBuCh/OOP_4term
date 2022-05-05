@@ -18,8 +18,12 @@ import org.xml.sax.SAXException;
 import paint.paint.model.*;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -292,7 +296,7 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
         Color c = shapeList.get(index).getFillColor();
         start = shapeList.get(index).getTopLeft();
         //Factory DP
-        Shape temp = new ShapeFactory().createShape(shapeList.get(index).getClass().getSimpleName(), start, end,
+        Shape temp = new ShapeFactory().create(shapeList.get(index).getClass().getSimpleName(), start, end,
                 ColorBox1.getValue(), ColorBox2.getValue(), (int) WidthSlider.getValue());
         if (temp.getClass().getSimpleName().equals("Line")) {
             Message.setText("Line не поддерживает изменение размера :(");
@@ -313,7 +317,7 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
             redraw(CanvasBox);
             String type = ShapeBox.getValue();
             try {
-                predrawShape = new ShapeFactory().createShape(type, start, end,
+                predrawShape = new ShapeFactory().create(type, start, end,
                         ColorBox1.getValue(), ColorBox2.getValue(), (int) WidthSlider.getValue());
             } catch (Exception e) {
                 Message.setText("Сначала выберите фигуру для рисования :)");
@@ -328,7 +332,7 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
         Shape sh;
         //Factory DP
         try {
-            sh = new ShapeFactory().createShape(type, start, end,
+            sh = new ShapeFactory().create(type, start, end,
                     ColorBox1.getValue(), ColorBox2.getValue(), (int) WidthSlider.getValue());
         } catch (Exception e) {
             Message.setText("Сначала выберите фигуру для рисования :)");
@@ -368,12 +372,12 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
     public void initialize(URL url, ResourceBundle rb) {
         ObservableList shapeList = FXCollections.observableArrayList();
 
-        shapeList.add("Circle");
-        shapeList.add("Ellipse");
-        shapeList.add("Rectangle");
-        shapeList.add("Square");
-        shapeList.add("Triangle");
-        shapeList.add("Line");
+        List<Class<Shape>> shapeClasses = ShapeFactory.getActualFigures();
+        for (Class shapeClass : shapeClasses) {
+            String name = shapeClass.getName().substring(25);
+            shapeList.add(name);
+        }
+
         ShapeBox.setItems(shapeList);
 
         ColorBox1.setValue(Color.YELLOW);
@@ -510,7 +514,23 @@ public class FXMLDocumentController implements Initializable, DrawingEngine {
 
     @Override
     public void installPluginShape(String jarPath) {
-        Message.setText("Этот формат не поддерживается.");
+        if (jarPath.endsWith(".jar")) {
+            Path result = null;
+            try {
+                result = Files.move(Paths.get(jarPath), Paths.get(ShapeFactory.pathToLibs + "/"
+                        + Paths.get(jarPath).getFileName()));
+            } catch (IOException e) {
+                System.out.println("Exception while moving file: " + e.getMessage());
+            }
+            if(result != null) {
+                Message.setText("Плагин загружен успешно.");
+            }else{
+                Message.setText("Загрузка плагина провалилась.");
+            }
+
+        } else {
+            Message.setText("Неправильный формат файла .. загрузите из .jar");
+        }
     }
 
 
